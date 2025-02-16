@@ -1,6 +1,5 @@
-
 /* General Styles */
-body {
+body, html {
     margin: 0;
     font-family: 'Orbitron', sans-serif;
     background: linear-gradient(135deg, #1e1e2f, #2a2a40);
@@ -9,43 +8,78 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-  }
-  
-  .login-container {
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.left-part, .right-part {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    animation: slide-in 2s forwards;
+}
+
+.left-part {
+    left: -50%;
+    background-image: url('leftpart.jpg');
+    background-size: cover;
+    background-position: left;
+}
+
+.right-part {
+    right: -50%;
+    background-image: url('rightpart.jpg');
+    background-size: cover;
+    background-position: right;
+}
+
+@keyframes slide-in {
+    to {
+        left: 0;
+        right: 0;
+    }
+}
+
+.login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
     height: 100%;
-  }
-  
-  .login-box {
+}
+
+.login-box {
     background: rgba(0, 0, 0, 0.7);
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     text-align: center;
     width: 300px;
-  }
-  
-  h1 {
+}
+
+h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #ff4757;
-  }
-  
-  p {
+}
+
+p {
     font-size: 0.9rem;
     margin-bottom: 2rem;
     color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .login-form {
+}
+
+.login-form {
     display: flex;
     flex-direction: column;
-  }
-  
-  input {
+}
+
+input {
     padding: 0.8rem;
     margin-bottom: 1rem;
     border: none;
@@ -53,13 +87,13 @@ body {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     font-size: 1rem;
-  }
-  
-  input::placeholder {
+}
+
+input::placeholder {
     color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .login-button {
+}
+
+.login-button {
     padding: 0.8rem;
     border: none;
     border-radius: 5px;
@@ -68,40 +102,40 @@ body {
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.3s ease;
-  }
-  
-  .login-button:hover {
+}
+
+.login-button:hover {
     background: #ff6b81;
-  }
-  
-  .divider {
+}
+
+.divider {
     margin: 1.5rem 0;
     position: relative;
     color: rgba(255, 255, 255, 0.5);
-  }
-  
-  .divider::before,
-  .divider::after {
+}
+
+.divider::before,
+.divider::after {
     content: '';
     position: absolute;
     top: 50%;
     width: 45%;
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
-  }
-  
-  .divider::before {
+}
+
+.divider::before {
     left: 0;
-  }
-  
-  .divider::after {
+}
+
+.divider::after {
     right: 0;
-  }
-  
-  .google-login {
+}
+
+.google-login {
     margin-top: 1rem;
-  }
-  
-  .g_id_signin {
+}
+
+.g_id_signin {
     width: 100%;
-  }
+}

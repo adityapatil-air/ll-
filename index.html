@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShipFile Storage</title>
+  <style>
+    :root {
+      --bg: #111216;
+      --card-bg: #181a20;
+      --header-bg: #181a20;
+      --accent: #6c47ff;
+      --accent2: #ff5e62;
+      --green: #1ed760;
+      --border: #23242a;
+      --text: #f3f4f6;
+      --text-muted: #b3b3b3;
+      --shadow: 0 4px 24px rgba(0,0,0,0.18);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .header {
+      background: var(--header-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 2rem;
+      box-shadow: var(--shadow);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      margin-right: 0.7rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.2rem;
+    }
+    .logo span {
+      color: #fff;
+    }
+    .logo .brand-accent {
+      color: var(--accent2);
+      margin-left: 2px;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .bucket {
+      background: #23242a;
+      color: var(--text-muted);
+      padding: 0.3rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.98rem;
+    }
+    .disconnect-btn {
+      background: #ff5e62;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.45rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .disconnect-btn:hover {
+      background: #e14c4c;
+    }
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 80vh;
+      margin-top: 2.5rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 2.2rem 2rem 2rem 2rem;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .path-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .path {
+      background: #23242a;
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0.4rem 1.1rem;
+      font-size: 1.05rem;
+      flex: 1;
+      margin-right: 1rem;
+    }
+    .new-folder-btn {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.45rem 1.1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .new-folder-btn:hover {
+      background: #17b34a;
+    }
+    .search-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .search-box {
+      flex: 1;
+      background: #23242a;
+      border: none;
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      outline: none;
+    }
+    .filter-btn {
+      background: #23242a;
+      color: var(--text-muted);
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1.1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    .filter-btn:hover {
+      background: #23242aee;
+    }
+    .upload-area {
+      border: 2px dashed #35363c;
+      border-radius: 12px;
+      background: #181a20;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      padding: 1.5rem 0;
+    }
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--accent);
+      background: #23242a;
+    }
+    .upload-area svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+    }
+    .upload-area span {
+      color: var(--text-muted);
+      font-size: 1.08rem;
+    }
+    .file-list-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      background: #181a20;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.98rem;
+    }
+    .file-list-table th, .file-list-table td {
+      padding: 0.7rem 0.6rem;
+      text-align: left;
+    }
+    .file-list-table th {
+      background: #23242a;
+      color: var(--text-muted);
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+    .file-list-table tr {
+      border-bottom: 1px solid #23242a;
+    }
+    .file-list-table tr:last-child {
+      border-bottom: none;
+    }
+    .file-list-table td a {
+      color: var(--accent);
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .file-list-table td {
+      color: var(--text);
+    }
+    .empty-list {
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 1.05rem;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #23242a;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.7rem;
+      margin-bottom: 0.7rem;
+      display: none;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.2s;
+    }
+    .folder-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .folder-item {
+      background: #23242a;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 0.3rem;
+      margin-bottom: 0.3rem;
+      transition: background 0.2s;
+    }
+    .folder-item.selected, .folder-item:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #23242a;
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+      min-width: 300px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal-content input {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background: #181a20;
+      color: #fff;
+    }
+    .modal-content button {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.45rem 1.1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .modal-content button:hover {
+      background: #17b34a;
+    }
+    @media (max-width: 700px) {
+      .main-container { margin-top: 1.2rem; }
+      .card { padding: 1.2rem 0.5rem; max-width: 98vw; }
+      .file-list-table th, .file-list-table td { padding: 0.5rem 0.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Project Purpose: ShipFile is a simple, developer-friendly file storage and sharing platform. Users can upload files, get instant shareable links, and manage files with sorting/filtering. Future features: Google Drive support, file expiration, password protection, user accounts, and developer API. -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🚢</div>
+      <span>Ship</span><span class="brand-accent">File</span>
+    </div>
+    <div class="user-info">
+      <div class="bucket">shipbucket2025</div>
+      <button class="disconnect-btn">Disconnect</button>
+    </div>
+  </div>
+  <div class="main-container">
+    <div class="card">
+      <div class="path-bar">
+        <div class="path" id="currentPath">/</div>
+        <button class="new-folder-btn" id="newFolderBtn">New Folder</button>
+      </div>
+      <div class="folder-list" id="folderList"></div>
+      <div class="search-filter-row">
+        <input class="search-box" type="text" id="searchBox" placeholder="Search files and folders." />
+        <button class="filter-btn" onclick="toggleFilterMenu()">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-6m0 0l-3 3m3-3l3 3M6 6h12"/></svg>
+          Filter
+        </button>
+      </div>
+      <div class="upload-area" id="uploadArea">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M20 16.5A2.5 2.5 0 0017.5 14H17v-2a5 5 0 00-10 0v2h-.5A2.5 2.5 0 004 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1z"/></svg>
+        <span>Drop files or click to upload</span>
+        <input type="file" id="fileInput" style="display:none" />
+      </div>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-bar-inner" id="progressBarInner"></div>
+      </div>
+      <div id="filterMenu" style="display:none; background:#23242a; color:#fff; border-radius:8px; padding:1rem; position:absolute; z-index:10; right:2rem; top:7rem; min-width:180px;">
+        <div style="margin-bottom:0.7rem; font-weight:500;">Sort by:</div>
+        <div><input type="radio" name="sort" value="date" checked onchange="applySort('date')"> Date</div>
+        <div><input type="radio" name="sort" value="size" onchange="applySort('size')"> Size</div>
+        <div><input type="radio" name="sort" value="name" onchange="applySort('name')"> Name (A-Z)</div>
+        <div><input type="radio" name="sort" value="type" onchange="applySort('type')"> File Type</div>
+      </div>
+      <div id="fileListContainer"></div>
+    </div>
+  </div>
+  <div id="modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div style="font-size:1.2rem; font-weight:500;">Create New Folder</div>
+      <input type="text" id="folderNameInput" placeholder="Folder name" />
+      <div style="display:flex; gap:0.7rem;">
+        <button id="createFolderBtn">Create</button>
+        <button onclick="closeModal()" style="background:#ff5e62;">Cancel</button>
+      </div>
+      <div id="modalError" style="color:#ff5e62;"></div>
+    </div>
+  </div>
+  <script>
+    let files = [];
+    let folders = [];
+    let currentSort = 'date';
+    let searchQuery = '';
+    let selectedFolder = null;
+
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const progressBar = document.getElementById('progressBar');
+    const progressBarInner = document.getElementById('progressBarInner');
+    const fileListContainer = document.getElementById('fileListContainer');
+    const searchBox = document.getElementById('searchBox');
+    const filterMenu = document.getElementById('filterMenu');
+    const folderList = document.getElementById('folderList');
+    const newFolderBtn = document.getElementById('newFolderBtn');
+    const modal = document.getElementById('modal');
+    const folderNameInput = document.getElementById('folderNameInput');
+    const createFolderBtn = document.getElementById('createFolderBtn');
+    const modalError = document.getElementById('modalError');
+    const currentPath = document.getElementById('currentPath');
+
+    // Load files and folders from backend
+    async function loadFilesAndFolders() {
+      const [filesRes, foldersRes] = await Promise.all([
+        fetch('http://localhost:3001/files'),
+        fetch('http://localhost:3001/folders')
+      ]);
+      files = await filesRes.json();
+      folders = await foldersRes.json();
+      renderFolders();
+      renderFileList();
+    }
+
+    // Render folders
+    function renderFolders() {
+      let html = `<div class="folder-item${selectedFolder === null ? ' selected' : ''}" onclick="selectFolder(null)">Root</div>`;
+      for (const folder of folders) {
+        html += `<div class="folder-item${selectedFolder === folder.id ? ' selected' : ''}" onclick="selectFolder(${folder.id})">${folder.name}</div>`;
+      }
+      folderList.innerHTML = html;
+      currentPath.textContent = selectedFolder === null ? 'Root' : (folders.find(f => f.id === selectedFolder)?.name || 'Root');
+    }
+
+    // Select folder
+    window.selectFolder = function(folderId) {
+      selectedFolder = folderId;
+      renderFolders();
+      renderFileList();
+    }
+
+    // Drag and drop events
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      uploadFile(file);
+    }
+
+    function uploadFile(file) {
+      progressBar.style.display = 'block';
+      progressBarInner.style.width = '0%';
+      const formData = new FormData();
+      formData.append('file', file);
+      if (selectedFolder) formData.append('folder_id', selectedFolder);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://localhost:3001/upload', true);
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+          const percent = (e.loaded / e.total) * 100;
+          progressBarInner.style.width = percent + '%';
+        }
+      };
+      xhr.onload = async function () {
+        progressBar.style.display = 'none';
+        if (xhr.status === 200) {
+          await loadFilesAndFolders();
+        } else {
+          fileListContainer.innerHTML = '<div class="empty-list">Upload failed: ' + xhr.statusText + '</div>';
+        }
+      };
+      xhr.onerror = function () {
+        progressBar.style.display = 'none';
+        fileListContainer.innerHTML = '<div class="empty-list">Upload failed: Network error</div>';
+      };
+      xhr.send(formData);
+    }
+
+    function renderFileList() {
+      let filtered;
+      let searching = searchQuery.trim().length > 0;
+      if (searching) {
+        // Global search: show all files matching the query
+        filtered = files.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      } else {
+        // Show files in selected folder only
+        filtered = files.filter(f =>
+          (selectedFolder === null ? !f.folder_id : f.folder_id === selectedFolder)
+        );
+      }
+      if (currentSort === 'date') {
+        filtered.sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
+      } else if (currentSort === 'size') {
+        filtered.sort((a, b) => b.size - a.size);
+      } else if (currentSort === 'name') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (currentSort === 'type') {
+        filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
+      }
+      if (filtered.length === 0) {
+        fileListContainer.innerHTML = '<div class="empty-list">No files found.</div>';
+        return;
+      }
+      let html = '<table class="file-list-table"><thead><tr>' +
+        '<th onclick="applySort(\'name\')">Name</th>' +
+        '<th onclick="applySort(\'type\')">Type</th>' +
+        '<th onclick="applySort(\'size\')">Size</th>' +
+        '<th onclick="applySort(\'date\')">Date</th>' +
+        '<th>Path</th>' +
+        '<th>Link</th>' +
+        '<th>Delete</th>' +
+        '</tr></thead><tbody>';
+      for (const f of filtered) {
+        let folderName = 'Root';
+        if (f.folder_id) {
+          const folder = folders.find(fl => fl.id === f.folder_id);
+          if (folder) folderName = folder.name;
+        }
+        html += `<tr>
+          <td>${f.name}</td>
+          <td>${f.type || ''}</td>
+          <td>${formatSize(f.size)}</td>
+          <td>${formatDate(f.uploaded_at)}</td>
+          <td>${folderName}</td>
+          <td><a href="${f.url}" target="_blank">Share</a></td>
+          <td><button onclick="deleteFile(${f.id})" style="background:#ff5e62;color:#fff;border:none;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;">Delete</button></td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      fileListContainer.innerHTML = html;
+    }
+
+    function formatSize(bytes) {
+      if (!bytes) return '-';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    }
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      return d.toLocaleString();
+    }
+
+    // Delete file
+    window.deleteFile = function(id) {
+      if (!confirm('Are you sure you want to delete this file?')) return;
+      fetch(`http://localhost:3001/files/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(() => loadFilesAndFolders());
+    }
+
+    // Delete folder (from toolbar or UI)
+    window.deleteFolder = function(id) {
+      if (!confirm('Are you sure you want to delete this folder and all its files?')) return;
+      fetch(`http://localhost:3001/folders/${id}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(() => {
+          if (selectedFolder === id) selectedFolder = null;
+          loadFilesAndFolders();
+        });
+    }
+
+    // Modal logic for new folder
+    newFolderBtn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      folderNameInput.value = '';
+      modalError.textContent = '';
+      folderNameInput.focus();
+    });
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+    window.closeModal = closeModal;
+    createFolderBtn.addEventListener('click', async () => {
+      const name = folderNameInput.value.trim();
+      if (!name) {
+        modalError.textContent = 'Folder name is required';
+        return;
+      }
+      const res = await fetch('http://localhost:3001/folders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      if (res.ok) {
+        closeModal();
+        await loadFilesAndFolders();
+      } else {
+        const data = await res.json();
+        modalError.textContent = data.error || 'Failed to create folder';
+      }
+    });
+
+    // Sorting and search
+    window.applySort = function(type) {
+      currentSort = type;
+      renderFileList();
+    }
+    function toggleFilterMenu() {
+      filterMenu.style.display = filterMenu.style.display === 'none' ? 'block' : 'none';
+    }
+    searchBox.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderFileList();
+    });
+    document.addEventListener('click', (e) => {
+      if (!filterMenu.contains(e.target) && !e.target.classList.contains('filter-btn')) {
+        filterMenu.style.display = 'none';
+      }
+    });
+
+    // Initial load
+    loadFilesAndFolders();
+  </script>
+</body>
+</html> 
